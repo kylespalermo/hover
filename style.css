@@ -1,0 +1,37 @@
+:root {
+  --mapsURL: url(0);
+  --gridWidthVar: 0;
+  --bgSize: 0;
+  --colorOne: 0;
+  --colorTwo: 0;
+}
+
+body {
+  margin: 0;
+}
+
+.outer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(var(--gridWidthVar), 1fr);
+  width: 600px;
+  height: 800px;
+  padding: 2vh 0vw 2vh 0vw;
+}
+
+.rotater {
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  background-image: var(--mapsURL1);
+  background-size: var(--bgSize);
+  object-fit: cover;
+  overflow: hidden;
+  background-blend-mode: multiply;
+  background-image: var(--mapsURL);
+}
