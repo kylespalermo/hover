@@ -1,9 +1,10 @@
 var rotateCounter = 0;
 
+//preloaaded GPS coordinates for points along the SW US border
 var locations = [
 "32.534389,-117.123744", // Tijuana, Pacific border: 
 "32.542555,-117.029251", // San Ysidro crossing: 
-"32.552122,-116.914455",// South of Otay detention center
+"32.552122,-116.914455", // South of Otay detention center
 "32.562529,-116.790673", // Tijuana river
 "32.601442,-116.320928", // Tierra Del Sol
 "32.576287,-116.627470", // Tecate 
@@ -46,12 +47,9 @@ var locations = [
 "25.954823,-97.146436", // Gulf Terminus 2
 ]
 
-let squares = [];
-let wrapperWide = document.getElementById("squaresParent").offsetWidth;
 
-// let hoverVar;
-// let newOrder;
- 
+let squares = []; //array to hold Square objects
+let wrapperWide = document.getElementById("squaresParent").offsetWidth; //get width of main wrapper
 
 class Square {
   constructor(idVar, squareL, squareT) {
@@ -60,111 +58,107 @@ class Square {
 	this.squareT = squareT;
   }
 }
+
+//set width & height of grid
 let squaresHoriz = 15;
 let squaresVert = 20;
   
-let totalSquares = squaresVert * squaresHoriz; // just a new variable to save some typing later
+let totalSquares = squaresVert * squaresHoriz;
 
+//variables to hold positions of each grid item
 let squareL = 0;
 let squareT = 0;
+
+//variable for width of square
 const squareWide = wrapperWide/squaresHoriz;
+
+//just a counter to attach to each new item as a key
 let idVar = 0; 
 
-let rotVars = ["0deg", "90deg", "-90deg"];
+let rotVars = ["0deg", "90deg", "-90deg"]; //option for not rotating or rotating 90deg in a direction
 let rotNum;
 
 
 function squaresBuild() {
 	getMapsImage();
 	createSquares();
-	// setRotation();
 }
+
 
 function createSquares(){
 
-document.documentElement.style.setProperty('--gridWidthVar', squaresHoriz);
-document.documentElement.style.setProperty('--bgSize', (squaresHoriz * 100) + "%");
+document.documentElement.style.setProperty('--gridWidthVar', squaresHoriz); //set css variable for grid column width
+document.documentElement.style.setProperty('--bgSize', (squaresHoriz * 100) + "%"); //set css variable for total image size
 
-bgColor = Math.floor(Math.random() * 360);
+bgColor = Math.floor(Math.random() * 360); //random background color
+
+//give us a random number of either -1 or 1
 colorVar = [-1, 1];
-colorHelper = Math.floor(Math.random() * colorVar.length);
-bgColorVar = colorVar[colorHelper];
+bgColorVar = colorVar[Math.floor(Math.random() * 2)];
 
-colorOne = "hsl(" + bgColor + ", 90%, 60%)"
-colorTwo = "hsl(" + (bgColor-(25*bgColorVar)) + ", 90%, 60%)";
+colorOne = "hsl(" + bgColor + ", 90%, 60%)" //set first background color as random hue from "bgColor"
+colorTwo = "hsl(" + (bgColor-(25*bgColorVar)) + ", 90%, 60%)"; //set second background color as 25 points behind or ahead of bgColor on hue wheel
 
-
+//set corresponding css variable values with colorOne and colorTwo
 document.documentElement.style.setProperty('--colorOne', colorOne);
 document.documentElement.style.setProperty('--colorTwo', colorTwo);
 
-
+//create an array populated with coordinates for background image relative to its
+//wrapper/parent div so that bg image position is constant for each grid item
 for (let i = 0; i < squaresVert; i++ ) {
 	for (let  j = 0; j < squaresHoriz; j++) {
 		squareL = 0 - (squareWide * j);
 		squares[idVar] = new Square(idVar, squareL, squareT); 
-    
+	
+	//then fill our grid with divs where each bg image position is drawn from above
     let newDiv = document.createElement("DIV");
 		document.getElementById("squaresParent").appendChild(newDiv);
 		newDiv.setAttribute("id", idVar);
 		newDiv.setAttribute("class", "rotater");
 		newDiv.style.backgroundPosition = squares[idVar].squareL + "px" + " " + squares[idVar].squareT + "px";
 		newDiv.onmouseover = function() {reOrder(this.id); }
-		newDiv.style.order = [idVar]; //use this since it's just counting up from 0, so each initial order equals the order it was created in
-		if (idVar < (totalSquares/2)) {
+		newDiv.style.order = [idVar]; //use idVar for order since it's just counting up from 0, so each initial order # equals the order it was created in
+		if (idVar < (totalSquares/2)) { //switch the bg color for the second half of the grid
 			newDiv.style.backgroundColor = "var(--colorOne)";
 			} else {
 				newDiv.style.backgroundColor = "var(--colorTwo)";
 				}
-		// console.log(idVar + " // " + testy);
-		idVar++;
+		idVar++; //increment idVar up for each new div
 		}
 
-	squareL = 0;
-	squareT -= squareWide;
+	squareL = 0; //after each new row
+	squareT -= squareWide; //reset x coord to 0 and increment y coord up by one grid cell height
 	}
 	
 }
 
-// function setRotation(){
-// 	const rotaters = document.querySelectorAll('.rotater');
 
-// 	document.body.offsetWidth; // force a single reflow
-//   	rotaters.forEach( (elem, i) => {
-// 		rotNum = Math.floor(Math.random() * 4);
-// 		if (Math.floor(Math.random() * 11) == 10) {		
-// 			elem.style.transform = "rotate(" + rotVars[rotNum] + ")";
-// 			} 
-//   	});
-// }
+function reOrder(hoverVar){ //function with idVar passed through as "hoverVar"
 
-function reOrder(hoverVar){
-	// document.body.offsetWidth; // force a single reflow
+	newOrder = (squares.length-1) - hoverVar; //sets "newOrder" as the div mirroring the one we're hovering over
+	rotNumA = Math.floor(Math.random() * 3); //random values corresponding to 0, 1, 2 positions in rotVars array
+	rotNumB = Math.floor(Math.random() * 3);
 
-	newOrder = (squares.length-1) - hoverVar;
-	rotNumA = Math.floor(Math.random() * 4);
-	rotNumB = Math.floor(Math.random() * 4);
-
-	reorderA = document.getElementById(hoverVar);
+	reorderA = document.getElementById(hoverVar); //grab the div we're hovering over and its mirror by its ID
 	reorderB = document.getElementById(newOrder);
 
-	reorderA.style.order = newOrder;
-	reorderA.style.transform = "rotate(" + rotVars[rotNumA] + ")";
+	reorderA.style.order = newOrder; //swap their orders
+	reorderA.style.transform = "rotate(" + rotVars[rotNumA] + ")"; //and rotate them according to their variable
 
 	reorderB.style.order = hoverVar;
 	reorderB.style.transform = "rotate(" + rotVars[rotNumB] + ")";
 
-	rotateCounter ++;
-	console.log(rotateCounter);
+	rotateCounter ++;//count the number of transformations we make to the document
 
-	if (rotateCounter == squares.length) {
+	//if we've made transformations equal to the number of grid items in the
+	// entire document, refresh to a new location
+	if (rotateCounter == squares.length) { 
 		location.reload();
-	}
-
-
-	// console.log(hoverVar + " // " + newOrder);
-	
+	}	
 }
 
+
+//call Google Maps API for an image correspsonding to our preprogrammed GPS locations
 function getMapsImage(){
 	mapVar = Math.floor(Math.random() * locations.length);
 	const mapOne = "https://maps.googleapis.com/maps/api/staticmap?center=" + locations[mapVar] + "&zoom=15&size=450x600&scale=2&maptype=satellite&key=" + myKey;
@@ -172,10 +166,5 @@ function getMapsImage(){
 	document.documentElement.style.setProperty('--mapsURL', "url('" + mapOne + "')");
 }
 		 
-// setInterval(function () {
-// 	setRotation();
-// 	reOrder();
-// 	}, 2000);
-
 
 
